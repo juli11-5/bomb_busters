@@ -47,16 +47,14 @@ class _ShowCardsScreenState extends ConsumerState<ShowCardsScreen> {
               final gameAsyncValue = await ref.read(getGameProvider(widget.gameId).future);
               ref.watch(deleteCardsProvider(widget.gameId));
               final bool isAdmin = _isAdmin(gameAsyncValue);
-              if (mounted) {
-                context.goNamed(
-                  AppRoute.lobby.name,
-                  extra: {
-                    'isAdmin': isAdmin,
-                    'gameId': widget.gameId,
-                    'name': widget.name,
-                  },
-                );
-              }
+              context.goNamed(
+                AppRoute.lobby.name,
+                extra: {
+                  'isAdmin': isAdmin,
+                  'gameId': widget.gameId,
+                  'name': widget.name,
+                },
+              );
             },
             height: buttonHeight,
             width: buttonWidth,

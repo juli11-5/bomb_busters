@@ -19,7 +19,7 @@ class CardGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cardsAsyncValue = ref.watch(getCardsProvider({'gameId': gameId, 'name': name}));
+    final cardsAsyncValue = ref.watch(getCardsProvider((gameId, name)));
 
     return Container(
       width: width,

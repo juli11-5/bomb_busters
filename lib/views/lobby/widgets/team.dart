@@ -42,7 +42,7 @@ class TeamDisplay extends ConsumerWidget {
         final double gapHeight = height * 0.015;
         final double availableHeight =
             height - (verticalPadding * 2) - (gapHeight * (game.players.length - 1));
-        final double itemHeight = availableHeight / game.players.length;
+        final double itemHeight = availableHeight / 5;
         final double fontSize = itemHeight * 0.45;
         final double circleSize = itemHeight * 0.60;
 

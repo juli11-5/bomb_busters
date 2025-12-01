@@ -62,11 +62,9 @@ final postCardsProvider = FutureProvider.family<void, Map<String, dynamic>>((ref
   return cardService.postCards(gameId, players, level);
 });
 
-final getCardsProvider = FutureProvider.family<List<CardData>, Map<String, String>>((ref, data) async {
+final getCardsProvider = FutureProvider.family<List<CardData>, (String, String)>((ref, data) async {
   final cardService = ref.watch(cardProvider);
-  final gameId = data['gameId'] ?? '';
-  final playerName = data['name'] ?? '';
-  return cardService.getCards(gameId, playerName);
+  return cardService.getCards(data.$1, data.$2);
 });
 
 final deleteCardsProvider = FutureProvider.family<void, String>((ref, gameId) async {
