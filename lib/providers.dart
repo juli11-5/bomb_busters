@@ -13,24 +13,24 @@ final gameProvider = Provider<GameService>((ref) {
 });
 
 /// --- Game Operations ---
-final createGameProvider = FutureProvider.family<void, Game>((ref, game) {
+final createGameProvider = FutureProvider.autoDispose.family<void, Game>((ref, game) {
   final gameService = ref.watch(gameProvider);
   return gameService.createGame(game);
 });
 
-final joinGameProvider = FutureProvider.family<void, Map<String, String>>((ref, data) {
+final joinGameProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, data) {
   final gameService = ref.watch(gameProvider);
   final gameId = data['gameId'] ?? '';
   final playerName = data['name'] ?? '';
   return gameService.joinGame(gameId, playerName);
 });
 
-final getGameProvider = FutureProvider.family<Game, String>((ref, gameId) {
+final getGameProvider = FutureProvider.autoDispose.family<Game, String>((ref, gameId) {
   final gameService = ref.watch(gameProvider);
   return gameService.getGame(gameId);
 });
 
-final setAdminProvider = FutureProvider.family<void, Map<String, String>>((ref, data) {
+final setAdminProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, data) {
   final gameService = ref.watch(gameProvider);
   final gameId = data['gameId'] ?? '';
   final playerName = data['memberName'] ?? '';
@@ -54,7 +54,7 @@ final cardProvider = Provider<CardService>((ref) {
 });
 
 /// --- Card Operations ---
-final postCardsProvider = FutureProvider.family<void, Map<String, dynamic>>((ref, data) async {
+final postCardsProvider = FutureProvider.autoDispose.family<void, Map<String, dynamic>>((ref, data) async {
   final cardService = ref.watch(cardProvider);
   final gameId = data['gameId'] as String;
   final players = List<String>.from(data['players'] ?? []);
@@ -62,12 +62,18 @@ final postCardsProvider = FutureProvider.family<void, Map<String, dynamic>>((ref
   return cardService.postCards(gameId, players, level);
 });
 
-final getCardsProvider = FutureProvider.family<List<CardData>, (String, String)>((ref, data) async {
+final cardsStreamProvider = StreamProvider.family<List<CardData>, (String, String)>((ref, data) async* {
   final cardService = ref.watch(cardProvider);
-  return cardService.getCards(data.$1, data.$2);
+
+  while (true) {
+    final cards = await cardService.getCards(data.$1, data.$2);
+    yield cards;
+    await Future.delayed(const Duration(seconds: 3));
+  }
 });
 
-final deleteCardsProvider = FutureProvider.family<void, String>((ref, gameId) async {
+
+final deleteCardsProvider = FutureProvider.autoDispose.family<void, String>((ref, gameId) async {
   final cardService = ref.watch(cardProvider);
   return cardService.deleteCards(gameId);
 });
