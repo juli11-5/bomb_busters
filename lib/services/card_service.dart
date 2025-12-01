@@ -29,7 +29,6 @@ class CardService {
     final Map<String, List<CardData>> cardsByPlayer = _distributeCards(players, bag, level.takeRed, level.takeYellow);
 
     for (final player in players) {
-      print(player);
       final CardsResponse body = CardsResponse(
         gameId: gameId,
         name: player,
