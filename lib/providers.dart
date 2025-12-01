@@ -33,7 +33,7 @@ final getGameProvider = FutureProvider.family<Game, String>((ref, gameId) {
 final setAdminProvider = FutureProvider.family<void, Map<String, String>>((ref, data) {
   final gameService = ref.watch(gameProvider);
   final gameId = data['gameId'] ?? '';
-  final playerName = data['name'] ?? '';
+  final playerName = data['memberName'] ?? '';
   return gameService.setCaptain(gameId, playerName);
 });
 
