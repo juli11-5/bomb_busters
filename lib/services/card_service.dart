@@ -28,27 +28,23 @@ class CardService {
     final List<CardData> bag = await _fillBag(level, gameId);
     final Map<String, List<CardData>> cardsByPlayer = _distributeCards(players, bag, level.takeRed, level.takeYellow);
 
-    final List<Future<void>> futures = [];
-
     for (final player in players) {
+      print(player);
       final CardsResponse body = CardsResponse(
         gameId: gameId,
         name: player,
         cards: cardsByPlayer[player]!,
       );
 
-      futures.add(http.post(
+      final response = await http.post(
         Uri.parse(apiURL),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body.toJson()),
-      ).then((response) {
-        if (response.statusCode != 201) {
-          throw Exception('Failed to post cards for $player');
-        }
-      }));
+      );
+      if (response.statusCode != 201) {
+        throw Exception('Failed to post cards for $player');
+      }
     }
-
-    await Future.wait(futures);
 
     await gameService.makeGameActive(gameId, true);
   }
@@ -134,7 +130,6 @@ class CardService {
         if (card.color == CardColor.yellow) takeYellow--;
       }
     }
-
     return result;
   }
 }
