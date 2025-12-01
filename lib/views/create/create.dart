@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bomb_busters/routes/routes.dart';
 import 'package:bomb_busters/providers.dart';
+import 'dart:math';
 
 class CreateScreen extends ConsumerStatefulWidget {
   const CreateScreen({super.key});
+
 
   @override
   ConsumerState<CreateScreen> createState() => _CreateScreenState();
@@ -16,6 +18,7 @@ class CreateScreen extends ConsumerStatefulWidget {
 
 class _CreateScreenState extends ConsumerState<CreateScreen> {
   final TextEditingController nameController = TextEditingController();
+  final _secureRandom = Random.secure();
 
   @override
   void dispose() {
@@ -82,14 +85,12 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     );
   }
 
-  String _generateGameId() {
-    const length = 6;
+  String _generateGameId({int length = 6}) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final rand = DateTime.now().millisecondsSinceEpoch;
-    String gameId = '';
-    for (int i = 0; i < length; i++) {
-      gameId += chars[(rand + i) % chars.length];
-    }
-    return gameId;
+    return List.generate(
+      length,
+      (_) => chars[_secureRandom.nextInt(chars.length)],
+    ).join();
   }
+
 }
