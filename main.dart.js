@@ -42050,7 +42050,7 @@ $S:226}
 A.avz.prototype={
 $2(a,b){var s,r=a.hk($.xb(),t.UG),q=b.i(0,"gameId")
 if(q==null)q=""
-s=b.i(0,"name")
+s=b.i(0,"memberName")
 return r.rQ(q,s==null?"":s)},
 $S:124}
 A.auZ.prototype={
