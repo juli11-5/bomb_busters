@@ -93,8 +93,8 @@ class CardService {
   }
 
   Future<List<CardData>> _fillBag(Level level, String gameId) async {
-    final List<double> redPool = List.generate(11, (i) => (i + 1) + 0.5)..shuffle();
-    final List<double> yellowPool = List.generate(11, (i) => (i + 1) + 0.1)..shuffle();
+    final List<double> redPool = List.generate(level.blue - 1, (i) => (i + 1) + 0.5)..shuffle();
+    final List<double> yellowPool = List.generate(level.blue -1, (i) => (i + 1) + 0.1)..shuffle();
 
     final List<CardData> bag = [];
 

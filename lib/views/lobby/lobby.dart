@@ -14,8 +14,15 @@ import 'package:bomb_busters/models/game.dart';
 
 class LobbyScreen extends ConsumerStatefulWidget {
   final List<Level> _levels = [
-    Level("Level 1", 6, 0, 2, 0, 2),
-    Level("Level 2", 12, 1, 2, 1, 2),
+    Level("Level 1", 6, 0, 0, 0, 0),
+    Level("Level 2", 8, 0, 2, 0, 2),
+    Level("Level 3", 10, 1, 0, 1, 0),
+    Level("Level 4", 12, 1, 2, 1, 2),
+    Level("Level 5", 12, 1, 3, 1, 2),
+    Level("Level 6", 12, 1, 4, 1, 4),
+    Level("Level 7", 12, 2, 0, 1, 0),
+    Level("Level 8", 12, 2, 3, 1, 2),
+
   ];
 
   final bool isAdmin;
