@@ -16,9 +16,12 @@ class TeamDisplay extends ConsumerWidget {
     required this.gameId,
   });
 
-  void _selectMember(WidgetRef ref, String gameId, String memberName, bool isAdmin) {
+  void _selectMember(WidgetRef ref, String gameId, String memberName) {
     if (!isAdmin) return;
-    ref.read(setAdminProvider((gameId, memberName)));
+    ref.read(setAdminProvider({
+      'gameId': gameId,
+      'memberName': memberName,
+    }));
   }
 
   @override
@@ -38,8 +41,8 @@ class TeamDisplay extends ConsumerWidget {
         final double verticalPadding = height * 0.02;
         final double gapHeight = height * 0.015;
         final double availableHeight =
-            height - (verticalPadding * 2) - (gapHeight * 4);
-        final double itemHeight = availableHeight / 5 - 1;
+            height - (verticalPadding * 2) - (gapHeight * (game.players.length - 1));
+        final double itemHeight = availableHeight / game.players.length;
         final double fontSize = itemHeight * 0.45;
         final double circleSize = itemHeight * 0.60;
 
@@ -61,7 +64,7 @@ class TeamDisplay extends ConsumerWidget {
               final member = game.players[index];
 
               return GestureDetector(
-                onTap: () => _selectMember(ref, gameId, member, isAdmin),
+                onTap: () => _selectMember(ref, gameId, member),
                 child: Container(
                   height: itemHeight,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -90,7 +93,7 @@ class TeamDisplay extends ConsumerWidget {
                               member == game.captain ? activeColor : inactiveColor,
                           shape: BoxShape.circle,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

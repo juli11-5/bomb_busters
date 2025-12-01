@@ -12,10 +12,11 @@ class _WavyPainter extends CustomPainter {
       ..color = getColorForCard(cardColor)
       ..style = PaintingStyle.fill;
 
-    Path path = Path();
-    double w = size.width;
-    double h = size.height;
+    final Path path = Path();
+    final double w = size.width;
+    final double h = size.height;
 
+    // Wellenförmiger Pfad
     path.moveTo(w * 0.25, 0); 
     path.cubicTo(w * 0.75, h * 0.25, w * 0.25, h * 0.75, w * 0.75, h);
 
@@ -38,8 +39,8 @@ class CardItem extends StatelessWidget {
 
   const CardItem({
     super.key,
-    required this.data
-    });
+    required this.data,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,9 @@ class CardItem extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Stack(
-                    children: [ 
+                    alignment: Alignment.center,
+                    children: [
+                      // Stroke
                       Text(
                         data.number.toString(),
                         style: TextStyle(
@@ -73,13 +76,14 @@ class CardItem extends StatelessWidget {
                             ..color = Colors.black,
                         ),
                       ),
+                      // Fill
                       Text(
                         data.number.toString(),
                         style: TextStyle(
                           fontSize: fontSize,
                           color: Colors.white,
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

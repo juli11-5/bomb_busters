@@ -15,54 +15,55 @@ class CardService {
     final dynamic decoded = jsonDecode(body);
     if (decoded is List) {
       if (decoded.isEmpty) {
-        throw Exception('Card response not found');
+        return CardsResponse(gameId: '', name: '', cards: []);
       }
-      return CardsResponse.fromJson(decoded.first); 
-    } 
-    else if (decoded is Map<String, dynamic>) {
+      return CardsResponse.fromJson(decoded.first);
+    } else if (decoded is Map<String, dynamic>) {
       return CardsResponse.fromJson(decoded);
-    } 
-    
-    throw Exception('Unexpected response format in CardService');
+    }
+    return CardsResponse(gameId: '', name: '', cards: []);
   }
 
-
   Future<void> postCards(String gameId, List<String> players, Level level) async {
-    List<CardData> bag = await _fillBag(level, gameId);
-    Map<String, List<CardData>> cardsByPlayer = _dragCards(players, bag, level.takeRed, level.takeYellow);
-    
-    for(int i = 0; i < players.length; i++){
-      CardsResponse body = CardsResponse(
+    final List<CardData> bag = await _fillBag(level, gameId);
+    final Map<String, List<CardData>> cardsByPlayer = _distributeCards(players, bag, level.takeRed, level.takeYellow);
+
+    final List<Future<void>> futures = [];
+
+    for (final player in players) {
+      final CardsResponse body = CardsResponse(
         gameId: gameId,
-        name: players[i],
-        cards: cardsByPlayer[players[i]]!
+        name: player,
+        cards: cardsByPlayer[player]!,
       );
 
-      final response = await http.post(
-        Uri.parse('$apiURL'),
+      futures.add(http.post(
+        Uri.parse(apiURL),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body.toJson()),
-      );
-      if (response.statusCode != 201) {
-        throw Exception('Failed to post cards');
-      }
+      ).then((response) {
+        if (response.statusCode != 201) {
+          throw Exception('Failed to post cards for $player');
+        }
+      }));
     }
 
-    gameService.makeGameActive(gameId, true);
+    await Future.wait(futures);
+
+    await gameService.makeGameActive(gameId, true);
   }
 
   Future<List<CardData>> getCards(String gameId, String name) async {
     final response = await http.get(
-        Uri.parse('$apiURL?gameid=$gameId&name=$name'),
-        headers: {'Content-Type': 'application/json'},
+      Uri.parse('$apiURL?gameid=$gameId&name=$name'),
+      headers: {'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
       final cardResponse = _parseCardResponse(response.body);
       return cardResponse.cards;
-    } else {
-      throw Exception("Failed to get card");
     }
+    return [];
   }
 
   Future<void> deleteCards(String gameId) async {
@@ -70,7 +71,7 @@ class CardService {
     final getResponse = await http.get(getUri);
 
     if (getResponse.statusCode != 200) {
-      throw Exception('Failed to fetch cards for deletion: ${getResponse.statusCode}');
+      return;
     }
 
     final List<dynamic> cardsResponseJson = json.decode(getResponse.body);
@@ -78,40 +79,24 @@ class CardService {
         .map((jsonItem) => CardsResponse.fromJson(jsonItem as Map<String, dynamic>))
         .toList();
 
-    final List<Future<http.Response>> deleteFutures = [];
+    final List<Future<void>> deleteFutures = [];
 
     for (final cardResponse in cardsToDelete) {
       final deleteUri = Uri.parse('$apiURL/${cardResponse.id}');
-      
-      deleteFutures.add(
-        http.delete(
-          deleteUri,
-          headers: {'Content-Type': 'application/json'},
-        )
-      );
+      deleteFutures.add(http.delete(deleteUri, headers: {'Content-Type': 'application/json'}).then((response) {
+      }));
     }
 
-  final results = await Future.wait(deleteFutures);
+    await Future.wait(deleteFutures);
 
-  for (final response in results) {
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      print('Warning: Failed to delete a card. Status: ${response.statusCode}');
-    }
+    await gameService.makeGameActive(gameId, false);
   }
 
-  gameService.makeGameActive(gameId, false);
-}
-
-
   Future<List<CardData>> _fillBag(Level level, String gameId) async {
-      
-    final List<double> redPool = List.generate(11, (i) => (i + 1) + 0.5);
-    redPool.shuffle();
+    final List<double> redPool = List.generate(11, (i) => (i + 1) + 0.5)..shuffle();
+    final List<double> yellowPool = List.generate(11, (i) => (i + 1) + 0.1)..shuffle();
 
-    final List<double> yellowPool = List.generate(11, (i) => (i + 1) + 0.1);
-    yellowPool.shuffle();
-
-    List<CardData> bag = [];
+    final List<CardData> bag = [];
 
     for (int i = 1; i <= level.blue; i++) {
       for (int j = 0; j < 4; j++) {
@@ -119,16 +104,10 @@ class CardService {
       }
     }
 
-    List<CardData> redCards = redPool
-        .take(level.red)
-        .map((value) => CardData(value, CardColor.red))
-        .toList();
-    bag.addAll(redCards);
+    final List<CardData> redCards = redPool.take(level.red).map((v) => CardData(v, CardColor.red)).toList();
+    final List<CardData> yellowCards = yellowPool.take(level.yellow).map((v) => CardData(v, CardColor.yellow)).toList();
 
-    List<CardData> yellowCards = yellowPool
-        .take(level.yellow)
-        .map((value) => CardData(value, CardColor.yellow))
-        .toList();
+    bag.addAll(redCards);
     bag.addAll(yellowCards);
 
     await gameService.addYellowRed(yellowCards, redCards, gameId);
@@ -137,26 +116,25 @@ class CardService {
     return bag;
   }
 
-  Map<String, List<CardData>> _dragCards(List<String> players, List<CardData> bag, int takeRed, int takeYellow) {
-
+  Map<String, List<CardData>> _distributeCards(List<String> players, List<CardData> bag, int takeRed, int takeYellow) {
     final result = { for (var p in players) p: <CardData>[] };
     int currentPlayer = 0;
-    for (int i = 0; i < bag.length; i++) {
+
+    for (final card in bag) {
       final player = players[currentPlayer];
-      final card = bag[i];
-      if((card.color == CardColor.red && takeRed > 0) || (card.color == CardColor.yellow && takeYellow > 0) || (card.color == CardColor.blue)){
+
+      if ((card.color == CardColor.red && takeRed > 0) ||
+          (card.color == CardColor.yellow && takeYellow > 0) ||
+          card.color == CardColor.blue) {
+
         result[player]!.add(card);
-        currentPlayer++;
-        if(currentPlayer >= players.length){
-          currentPlayer = 0;
-        }
-        if(card.color == CardColor.red){
-          takeRed--;
-        }else if(card.color == CardColor.yellow){
-          takeYellow--;
-        }
+        currentPlayer = (currentPlayer + 1) % players.length;
+
+        if (card.color == CardColor.red) takeRed--;
+        if (card.color == CardColor.yellow) takeYellow--;
       }
     }
+
     return result;
   }
 }

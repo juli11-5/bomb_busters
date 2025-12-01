@@ -7,7 +7,6 @@ import 'package:bomb_busters/views/start/start.dart';
 import 'package:bomb_busters/header_footer_scaffold.dart';
 import 'package:bomb_busters/routes/routes.dart';
 
-
 final goRouter = GoRouter(
   routes: [
     GoRoute(
@@ -40,29 +39,33 @@ final goRouter = GoRouter(
     GoRoute(
       path: AppRoute.lobby.path,
       name: AppRoute.lobby.name,
-      pageBuilder: (context, state){
-        final bool isAdmin = state.extra as bool? ?? false;
-        final String gameId = state.queryParameters['gameId'] ?? '';
-        final String name = state.queryParameters['name'] ?? '';
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final bool isAdmin = extra['isAdmin'] as bool? ?? false;
+        final String gameId = extra['gameId'] as String? ?? '';
+        final String name = extra['name'] as String? ?? '';
+
         return NoTransitionPage(
           child: HeaderFooterScaffold(
             child: LobbyScreen(isAdmin: isAdmin, gameId: gameId, name: name),
           ),
         );
-      }
+      },
     ),
     GoRoute(
-      path: AppRoute.show_cards.path,
-      name: AppRoute.show_cards.name,
+      path: AppRoute.showCards.path,
+      name: AppRoute.showCards.name,
       pageBuilder: (context, state) {
-        final (gameId, name) = state.extra as (String, String);
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final String gameId = extra['gameId'] as String? ?? '';
+        final String name = extra['name'] as String? ?? '';
+
         return NoTransitionPage(
           child: HeaderFooterScaffold(
             child: ShowCardsScreen(gameId: gameId, name: name),
           ),
         );
-      }
+      },
     ),
   ],
 );
-

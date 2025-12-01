@@ -9,11 +9,11 @@ import 'package:bomb_busters/views/show_cards/widgets/card_info.dart';
 import 'package:bomb_busters/models/game.dart';
 
 class ShowCardsScreen extends ConsumerStatefulWidget {
-
   final String gameId;
   final String name;
 
   const ShowCardsScreen({super.key, required this.gameId, required this.name});
+
   @override
   ConsumerState<ShowCardsScreen> createState() => _ShowCardsScreenState();
 }
@@ -22,7 +22,6 @@ class _ShowCardsScreenState extends ConsumerState<ShowCardsScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
     final double buttonHeight = size.height * 0.05;
     final double buttonWidth = size.width * 0.7;
     final double spacingHeight = size.height * 0.03;
@@ -38,22 +37,26 @@ class _ShowCardsScreenState extends ConsumerState<ShowCardsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
-          CardInfo(height:infoHeight, width:width, gameId: widget.gameId),
-
+          CardInfo(height: infoHeight, width: width, gameId: widget.gameId),
           SizedBox(height: spacingHeight),
-
           CardGrid(height: gridHeight, width: width, gameId: widget.gameId, name: widget.name),
-
           SizedBox(height: spacingHeight),
-
           AppButton(
             text: "ZURÜCK ZUR LOBBY",
-            onPressed: () async{
+            onPressed: () async {
               final gameAsyncValue = await ref.read(getGameProvider(widget.gameId).future);
               ref.watch(deleteCardsProvider(widget.gameId));
               final bool isAdmin = _isAdmin(gameAsyncValue);
-              context.goNamed(AppRoute.lobby.name, extra:isAdmin, queryParameters: {'name': widget.name, 'gameId': widget.gameId});
+              if (mounted) {
+                context.goNamed(
+                  AppRoute.lobby.name,
+                  extra: {
+                    'isAdmin': isAdmin,
+                    'gameId': widget.gameId,
+                    'name': widget.name,
+                  },
+                );
+              }
             },
             height: buttonHeight,
             width: buttonWidth,
@@ -64,9 +67,6 @@ class _ShowCardsScreenState extends ConsumerState<ShowCardsScreen> {
   }
 
   bool _isAdmin(Game? game) {
-    if (game == null) {
-      return false;
-    }
-    return game.admin == widget.name;
+    return game?.admin == widget.name;
   }
 }

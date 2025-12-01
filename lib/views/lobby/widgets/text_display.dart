@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class TextDisplay extends StatelessWidget {
-  const TextDisplay(this.text);
-
   final String text;
+
+  const TextDisplay({
+    super.key,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {

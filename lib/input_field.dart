@@ -5,6 +5,7 @@ class InputField extends StatelessWidget {
   final String hint;
 
   const InputField({
+    super.key,
     required this.controller,
     required this.hint,
   });

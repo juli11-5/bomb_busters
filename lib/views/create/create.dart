@@ -18,6 +18,12 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   final TextEditingController nameController = TextEditingController();
 
   @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
@@ -25,45 +31,57 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     final double buttonWidth = size.width * 0.7;
     final double spacingHeight = size.height * 0.02;
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05, vertical: size.height * 0.05),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            children: [
-              Container(
-                width: buttonWidth,
-                child: InputField(
-                  controller: nameController,
-                  hint: "NAME ...",
-                ),
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.05, vertical: size.height * 0.05),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: buttonWidth,
+              child: InputField(
+                controller: nameController,
+                hint: "NAME ...",
               ),
-              SizedBox(height: spacingHeight),
-              AppButton(
-                text: "SPIEL ERSTELLEN",
-                onPressed: () {
-                  final String gameId = _generateGameId();
-                  context.goNamed(AppRoute.lobby.name, extra: true, queryParameters: {'name': nameController.text, 'gameId': gameId});
-                  ref.read(createGameProvider(Game(
-                      gameId: gameId,
-                      players: [nameController.text],
-                      isActive: false,
-                      cards: [],
-                      admin: nameController.text,
-                      captain: nameController.text
-                  )));
-                },
-                width: buttonWidth,
-                height: buttonHeight,
-              ),
-            ],
-          ),
-        ],
+            ),
+            SizedBox(height: spacingHeight),
+            AppButton(
+              text: "SPIEL ERSTELLEN",
+              onPressed: () async {
+                final String name = nameController.text;
+                final String gameId = _generateGameId();
+
+                await ref.read(createGameProvider(Game(
+                  gameId: gameId,
+                  players: [name],
+                  isActive: false,
+                  cards: [],
+                  admin: name,
+                  captain: name,
+                )).future);
+
+                if (mounted) {
+                  context.goNamed(
+                    AppRoute.lobby.name,
+                    extra: {
+                      'isAdmin': true,
+                      'gameId': gameId,
+                      'name': name,
+                    },
+                  );
+                }
+              },
+              width: buttonWidth,
+              height: buttonHeight,
+            ),
+          ],
+        ),
       ),
     );
   }
+
   String _generateGameId() {
     const length = 6;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

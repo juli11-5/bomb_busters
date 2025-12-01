@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart%20';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bomb_busters/routes/routes.dart';
 import 'package:bomb_busters/app_button.dart';
@@ -18,6 +18,13 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
   final TextEditingController codeController = TextEditingController();
 
   @override
+  void dispose() {
+    nameController.dispose();
+    codeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
@@ -25,40 +32,58 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     final double buttonWidth = size.width * 0.7;
     final double spacingHeight = size.height * 0.02;
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: size.width * 0.05, vertical: size.height * 0.05),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: buttonWidth,
-            child: InputField(
-            controller: nameController,
-              hint: "NAME ...",
+    return SingleChildScrollView(
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.05, vertical: size.height * 0.05),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: buttonWidth,
+              child: InputField(
+                controller: nameController,
+                hint: "NAME ...",
+              ),
             ),
-          ),
-          SizedBox(height: spacingHeight),
-
-          Container(
-            width: buttonWidth,
-            child: InputField(
-              controller: codeController,
-              hint: "SPIELCODE ...",
+            SizedBox(height: spacingHeight),
+            SizedBox(
+              width: buttonWidth,
+              child: InputField(
+                controller: codeController,
+                hint: "SPIELCODE ...",
+              ),
             ),
-          ),
-          SizedBox(height: spacingHeight),
+            SizedBox(height: spacingHeight),
+            AppButton(
+              text: "SPIEL BEITRETEN",
+              onPressed: () async {
+                final name = nameController.text;
+                final gameId = codeController.text;
 
-          AppButton(
-            text: "SPIEL BEITRETEN",
-            onPressed: () {
-              context.goNamed(AppRoute.lobby.name, extra: false, queryParameters: {'name': nameController.text, 'gameId': codeController.text});
-              ref.read(joinGameProvider((codeController.text, nameController.text)));
-            },
-            width: buttonWidth,
-            height: buttonHeight,
-          ),
-        ],
+                await ref
+                    .read(joinGameProvider({
+                      'gameId': gameId,
+                      'name': name,
+                    }).future);
+
+                if (mounted) {
+                  context.goNamed(
+                    AppRoute.lobby.name,
+                    extra: {
+                      'isAdmin': false,
+                      'gameId': gameId,
+                      'name': name,
+                    },
+                  );
+                }
+              },
+              width: buttonWidth,
+              height: buttonHeight,
+            ),
+          ],
+        ),
       ),
     );
   }

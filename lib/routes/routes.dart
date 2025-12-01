@@ -3,7 +3,7 @@ enum AppRoute {
   create(path:'/create'),
   join(path:'/join'),
   lobby(path:'/lobby'),
-  show_cards(path:'/show_cards');
+  showCards(path:'/showCards');
   const AppRoute({required this.path});
   final String path;
 }

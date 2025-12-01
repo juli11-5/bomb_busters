@@ -16,7 +16,7 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width ?? double.infinity,
       height: height,
       child: ElevatedButton(

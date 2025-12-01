@@ -6,7 +6,7 @@ class Game {
   List<String> players;
   bool isActive;
   List<CardData> cards;
-  final String captain;
+  String captain;
 
 
   Game({
