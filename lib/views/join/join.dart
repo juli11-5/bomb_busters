@@ -59,16 +59,28 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
             AppButton(
               text: "SPIEL BEITRETEN",
               onPressed: () async {
-                final name = nameController.text;
-                final gameId = codeController.text;
+                final name = nameController.text.trim();
+                final gameId = codeController.text.trim();
 
-                await ref
-                    .read(joinGameProvider({
-                      'gameId': gameId,
-                      'name': name,
-                    }).future);
+                // Validierung
+                if (name.isEmpty) {
+                  _showSnackBar(context, 'Bitte gib einen Namen ein!');
+                  return;
+                }
 
-                if (mounted) {
+                if (gameId.isEmpty) {
+                  _showSnackBar(context, 'Bitte gib eine Spiel-ID ein!');
+                  return;
+                }
+
+                try {
+                  await ref.read(joinGameProvider({
+                    'gameId': gameId,
+                    'name': name,
+                  }).future);
+
+                  if (!mounted) return;
+
                   context.goNamed(
                     AppRoute.lobby.name,
                     extra: {
@@ -77,6 +89,8 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
                       'name': name,
                     },
                   );
+                } catch (e) {
+                  _showSnackBar(context, 'Spiel konnte nicht beigetreten werden!');
                 }
               },
               width: buttonWidth,
@@ -86,5 +100,14 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
         ),
       ),
     );
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 1),
+        ),
+      );
   }
 }

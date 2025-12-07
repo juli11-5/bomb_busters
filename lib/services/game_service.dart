@@ -61,6 +61,14 @@ class GameService {
     await _putGame(game, gameId);
   }
 
+    Future<void> leaveGame(String gameId, String playerName) async {
+    final game = await _getGameById(gameId);
+    if (game.players.contains(playerName)) {
+      game.players.remove(playerName);
+      await _putGame(game, gameId);
+    }
+  }
+
   // ---------------------------
   // Private helper methods
   // ---------------------------

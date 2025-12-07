@@ -29,6 +29,9 @@ class CardService {
     final Map<String, List<CardData>> cardsByPlayer = _distributeCards(players, bag, level.takeRed, level.takeYellow);
 
     for (final player in players) {
+      cardsByPlayer[player]!.sort(
+        (a, b) => a.number.compareTo(b.number),
+      );
       final CardsResponse body = CardsResponse(
         gameId: gameId,
         name: player,
@@ -98,9 +101,19 @@ class CardService {
         bag.add(CardData(i.toDouble(), CardColor.blue));
       }
     }
+    final List<CardData> redCards = redPool
+        .take(level.red)
+        .map((v) => CardData(v, CardColor.red))
+        .toList();
+    redCards.sort((a, b) => a.number.compareTo(b.number));
 
-    final List<CardData> redCards = redPool.take(level.red).map((v) => CardData(v, CardColor.red)).toList();
-    final List<CardData> yellowCards = yellowPool.take(level.yellow).map((v) => CardData(v, CardColor.yellow)).toList();
+
+        final List<CardData> yellowCards = yellowPool
+        .take(level.yellow)
+        .map((v) => CardData(v, CardColor.yellow))
+        .toList();
+    yellowCards.sort((a, b) => a.number.compareTo(b.number));
+
 
     bag.addAll(redCards);
     bag.addAll(yellowCards);

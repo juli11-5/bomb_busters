@@ -53,19 +53,29 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
             AppButton(
               text: "SPIEL ERSTELLEN",
               onPressed: () async {
-                final String name = nameController.text;
-                final String gameId = _generateGameId();
+                final name = nameController.text.trim();
 
-                await ref.read(createGameProvider(Game(
+                if (name.isEmpty) {
+                  _showSnackBar(context, 'Bitte gib einen Namen ein!');
+                  return;
+                }
+
+                final gameId = _generateGameId();
+
+                final game = Game(
                   gameId: gameId,
                   players: [name],
                   isActive: false,
                   cards: [],
                   admin: name,
                   captain: name,
-                )).future);
+                );
 
-                if (mounted) {
+                try {
+                  await ref.read(createGameProvider(game).future);
+
+                  if (!mounted) return;
+
                   context.goNamed(
                     AppRoute.lobby.name,
                     extra: {
@@ -74,6 +84,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                       'name': name,
                     },
                   );
+                } catch (e) {
+                  _showSnackBar(context, 'Fehler beim Erstellen des Spiels!');
                 }
               },
               width: buttonWidth,
@@ -93,4 +105,12 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     ).join();
   }
 
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 1),
+        ),
+      );
+  }
 }

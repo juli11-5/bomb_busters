@@ -139,7 +139,13 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen> {
 
           AppButton(
             text: "HAUPTMENÜ",
-            onPressed: () => context.goNamed(AppRoute.start.name),
+            onPressed: () {
+              ref.read(leaveGameProvider({
+                'gameId': widget.gameId,
+                'name': widget.name,
+              }));
+              context.goNamed(AppRoute.start.name);
+            },
             width: width,
             height: buttonHeight,
           ),

@@ -47,6 +47,13 @@ final getStreamGameProvider = StreamProvider.autoDispose.family<Game, String>((r
   }
 });
 
+final leaveGameProvider = FutureProvider.autoDispose.family<void, Map<String, String>>((ref, data) {
+  final gameService = ref.watch(gameProvider);
+  final gameId = data['gameId'] ?? '';
+  final playerName = data['name'] ?? '';
+  return gameService.leaveGame(gameId, playerName);
+});
+
 /// --- CardService Provider ---
 final cardProvider = Provider<CardService>((ref) {
   final gameService = ref.watch(gameProvider);
