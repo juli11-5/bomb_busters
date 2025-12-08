@@ -53,7 +53,7 @@ class CardService {
 
   Future<List<CardData>> getCards(String gameId, String name) async {
     final response = await http.get(
-      Uri.parse('$apiURL?gameid=$gameId&name=$name'),
+      Uri.parse('$apiURL?gameId=$gameId&name=$name'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -65,7 +65,7 @@ class CardService {
   }
 
   Future<void> deleteCards(String gameId) async {
-    final getUri = Uri.parse('$apiURL?gameid=$gameId');
+    final getUri = Uri.parse('$apiURL?gameId=$gameId');
     final getResponse = await http.get(getUri);
 
     if (getResponse.statusCode != 200) {
