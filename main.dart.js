@@ -42245,7 +42245,7 @@ a_2(a,b){var s=0,r=A.P(t.ep),q,p=this,o,n
 var $async$vY=A.K(function(c,d){if(c===1)return A.M(d,r)
 for(;;)switch(s){case 0:o=t.N
 s=3
-return A.L(A.av2(A.cE(p.a+"?gameid="+a+"&name="+b),A.ah(["Content-Type","application/json"],o,o)),$async$vY)
+return A.L(A.av2(A.cE(p.a+"?gameId="+a+"&name="+b),A.ah(["Content-Type","application/json"],o,o)),$async$vY)
 case 3:n=d
 if(n.b===200){q=p.afo(A.auU(A.atV(n.e)).eb(n.w)).c
 s=1
@@ -42259,7 +42259,7 @@ amw(a){var s=0,r=A.P(t.H),q,p=this,o,n,m,l,k,j,i,h
 var $async$qC=A.K(function(b,c){if(b===1)return A.M(c,r)
 for(;;)switch(s){case 0:i=p.a
 s=3
-return A.L(A.av2(A.cE(i+"?gameid="+a),null),$async$qC)
+return A.L(A.av2(A.cE(i+"?gameId="+a),null),$async$qC)
 case 3:h=c
 if(h.b!==200){s=1
 break}o=J.kH(B.aU.eb(A.auU(A.atV(h.e)).eb(h.w)),new A.a0I(),t.Jh)
