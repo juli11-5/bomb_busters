@@ -22,7 +22,11 @@ class LobbyScreen extends ConsumerStatefulWidget {
     Level("Level 6", 12, 1, 4, 1, 4),
     Level("Level 7", 12, 2, 0, 1, 0),
     Level("Level 8", 12, 2, 3, 1, 2),
-
+    Level("Level 9", 12, 1, 2, 1, 2),
+    Level("Level 10", 12, 1, 4, 1, 4),
+    Level ("Level 11", 12, 0, 2, 0, 2),
+    Level("Level 12", 12, 1, 4, 1, 4),
+    Level("Level 13", 12, 3, 0, 3, 0)
   ];
 
   final bool isAdmin;
